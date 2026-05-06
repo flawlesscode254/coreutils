@@ -365,6 +365,7 @@ all_tests =					\
   tests/groups/groups-process-all.sh		\
   tests/groups/groups-version.sh		\
   tests/head/head-c.sh				\
+  tests/head/head-n0.sh				\
   tests/head/head-pos.sh			\
   tests/head/head-write-error.sh		\
   tests/misc/kill.sh				\
