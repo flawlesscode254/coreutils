@@ -316,6 +316,21 @@ write_permuted_lines (size_t n_lines, char *const *line,
   return 0;
 }
 
+/* Print NUMBER followed by EOLBYTE to standard output.
+   Return false on failure, true on success.  */
+static bool
+print_number (unsigned long int number, char eolbyte)
+{
+  char buf[INT_BUFSIZE_BOUND (unsigned long int)];
+  char *p = buf + INT_STRLEN_BOUND (unsigned long int);
+  *p = eolbyte;
+  do
+    *--p = '0' + number % 10;
+  while ((number /= 10) != 0);
+  idx_t len = buf + sizeof buf - p;
+  return fwrite (p, 1, len, stdout) == len;
+}
+
 /* Output N_LINES of numbers to stdout, from PERMUTATION array.
    PERMUTATION must have at least N_LINES elements.  */
 static int
@@ -325,9 +340,7 @@ write_permuted_numbers (size_t n_lines, size_t lo_input,
   for (size_t i = 0; i < n_lines; i++)
     {
       unsigned long int n = lo_input + permutation[i];
-      char buf[INT_BUFSIZE_BOUND (uintmax_t)];
-      if (fputs (umaxtostr (n, buf), stdout) < 0
-          || fputc (eolbyte, stdout) < 0)
+      if (! print_number (n, eolbyte))
         return -1;
     }
 
@@ -345,9 +358,7 @@ write_random_numbers (struct randint_source *s, size_t count,
   for (size_t i = 0; i < count; i++)
     {
       unsigned long int j = lo_input + randint_choose (s, range);
-      char buf[INT_BUFSIZE_BOUND (uintmax_t)];
-      if (fputs (umaxtostr (j, buf), stdout) < 0
-          || fputc (eolbyte, stdout) < 0)
+      if (! print_number (j, eolbyte))
         return -1;
     }
 

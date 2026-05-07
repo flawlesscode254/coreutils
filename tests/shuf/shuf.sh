@@ -100,6 +100,18 @@ shuf -n10 -i0-9 -n3 -n20 > exp || framework_failure_
 c=$(wc -l < exp) || framework_failure_
 test "$c" -eq 3 || { fail=1; echo "Multiple -n failed">&2 ; }
 
+# Test that the conversion from integer to string doesn't write past a buffer.
+# Note that the value is too large for shell arithmetic.
+v=$ULONG_MAX
+while :; do
+  v=$(echo $v | sed 's/^0/1/')
+  test -z "$v" && break
+  echo $v > exp
+  shuf -i $v-$v > out || fail=1
+  compare exp out || fail=1
+  v=$(echo $v | cut -b2-)
+done
+
 # Test error conditions
 
 # -i and -e must not be used together
